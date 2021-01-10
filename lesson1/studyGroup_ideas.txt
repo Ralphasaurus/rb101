@@ -1,0 +1,19 @@
+Topic Presentation.
+Pick a particular topic or programming concept, and briefly present on that topic to the rest of the group using a 
+combination of explanations and/or code examples. Have the rest of the group ask questions and give feedback.
+
+Code Example Questions.
+Have each student in the study group prepare a few code examples which illustrate or explore a particular concept.
+Take turns to ask the rest of the group about your examples, e.g. 'what will happen when this code is run?', 'what will line 5 output?', etc.
+
+Pair Problem Solving. 
+With a study partner, pick a coding problem that neither of you have solved before and solve it together.
+Discuss the problem and approach to solving it, and iterate on an approach.
+
+Live Coding Practice. 
+With a study partner, both of you choose a problem that the other has not seen before and solve it ahead of time. 
+Then, on a call, your partner can give you a problem (that is new to you) to solve, and you can then give them a problem (that is new to them) 
+to solve. Practice explaining your thought process, why you're choosing certain methods, etc.
+
+Flash-card Quiz. Prepare a flash card deck on a particular topic or concept. Use these cards in the session to quiz your study partner 
+or study group.
