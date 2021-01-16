@@ -1,0 +1,36 @@
+Outline:
+1. a method that returns the sum of two integers
+2. a method that takes an array of strings, and returns a string that is all those strings concatenated together
+3. a method that takes an array of integers, and returns a new array with every other element
+
+INFORMAL:
+
+1. 
+ask the user for input
+store input in a variables
+write method to add the numbers together and return the result
+
+2. 
+an array of strings stored in a variable
+join the strings 
+print result
+
+3.
+an array of integers in a variable
+iterate over the array one by one
+use the index numbers of the array to pop off each odd one (or even)
+return the result
+
+FORMAL:
+
+3. 
+
+START	-given a collection of integers...
+
+SET	    -set the array into a variable
+        -set the interator counter to 0
+
+LOGIC   -while counter != array.length do... 
+        -remove array[1]
+        -increment counter
+        -if counter == array.length break the while loop and print the array
