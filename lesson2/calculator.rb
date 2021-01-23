@@ -39,7 +39,7 @@ def operator_to_message(op)
   end
 end
 
-# ...Instance Variables...
+# ...Local Variables...
 input1 = ""
 input2 = ""
 operator = ""
