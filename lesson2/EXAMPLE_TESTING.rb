@@ -1,15 +1,11 @@
-def cap(str)
-  str.capitalize!   # does this affect the object outside the method?
+def name
+  "George"
 end
 
-name = "jim"
-cap(name)
-puts name           # => Jim
+name = "Lisa"
 
-def cap2(str)
-  str.capitalize
+def display_name
+  puts name
 end
 
-name2 = "bob"
-cap2(name2)
-puts name2
+display_name
