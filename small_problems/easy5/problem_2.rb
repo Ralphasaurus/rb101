@@ -12,23 +12,18 @@
 # 13. use string interpolation to display them in a hh:mm format "#{hour}:#{min}"
 
 def time_of_day(int)
-  hour = 0
-  minute = 0
-
-# perhaps it's better to put the following code into it's own helper method...
-# Calculate minute (hour is going to be either 23 or 00 depending upon - or +)
-  if int == (-59..59)
-    minute = int
-  else minute = int % 60
-  end
-# hour calculation if it's close to midnight...
-  if minute > 0
-    hour = "00"
-  else hour = "23"
+  storage = [":"]
+  hours = (int / 60)
+  minutes = (int % 60).to_s
+  
+  if minutes.size < 2
+    storage << ("0" + minutes)
+  else storage << minutes
   end
   
-  p minute
-  p hour
+  storage.prepend(hours.to_s)
+  
+  p storage.join
 end
 
 
