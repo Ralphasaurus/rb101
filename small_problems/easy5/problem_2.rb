@@ -13,17 +13,12 @@
 
 def time_of_day(int)
   storage = [":"]
-  hours = (int / 60)
+  hours = ((int / 60) % 24).to_s
   minutes = (int % 60).to_s
   
-  if minutes.size < 2
-    storage << ("0" + minutes)
-  else storage << minutes
-  end
-  
-  storage.prepend(hours.to_s)
-  
-  p storage.join
+  minutes.size < 2 ? storage << ("0" + minutes) : storage << minutes
+  hours.size < 2 ? storage.prepend("0" + hours) : storage.prepend(hours)
+  storage.join
 end
 
 
@@ -32,6 +27,6 @@ p time_of_day(0) == "00:00"
 p time_of_day(-3) == "23:57"
 p time_of_day(35) == "00:35"
 p time_of_day(-1437) == "00:03"
-# p time_of_day(3000) == "02:00"
-# p time_of_day(800) == "13:20"
-# p time_of_day(-4231) == "01:29"
+p time_of_day(3000) == "02:00"
+p time_of_day(800) == "13:20"
+p time_of_day(-4231) == "01:29"
