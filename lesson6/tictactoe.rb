@@ -87,29 +87,59 @@ def joinor(array, delimit = ', ', word = 'or')
   end
 end
 
+def display_score(score)
+  puts "Player points:   #{score["Player"]}"
+  puts "Computer points: #{score["Computer"]}"
+end
+
+def increment_score(player, score)
+  player == "tie" ? score.each {|k, v| score[k] += 1 } : score[player] += 1
+end
+
+def clear_score(score)
+  score.each {|k, _| score[k] = 0 }
+end
+
+def continue
+  prompt("Press Enter to continue")
+  gets
+end
+
+score = {"Player" => 0, "Computer" => 0}
+
 loop do
-  board = initialize_board
-
   loop do
+    board = initialize_board
+  
+    loop do
+      display_board(board)
+  
+      display_score(score)
+  
+      player_turn!(board)
+      break if someone_won?(board) || board_full?(board)
+  
+      computer_turn!(board)
+      break if someone_won?(board) || board_full?(board)
+    end
+  
     display_board(board)
-
-    player_turn!(board)
-    break if someone_won?(board) || board_full?(board)
-
-    computer_turn!(board)
-    break if someone_won?(board) || board_full?(board)
+  
+    if someone_won?(board)
+      puts "#{detect_winner(board)} won!"
+      increment_score(detect_winner(board), score)
+      continue
+    else
+      puts "It's a tie!"
+      increment_score("tie", score)
+      continue
+    end
+    break if score.any? {|k, v| v == 5}
   end
-
-  display_board(board)
-
-  if someone_won?(board)
-    puts "#{detect_winner(board)} won!"
-  else
-    puts "It's a tie!"
-  end
-
-  prompt("Play again? (y or n)")
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+  
+    prompt("Play again? (y or n)")
+    answer = gets.chomp
+    break unless answer.downcase.start_with?('y')
+    clear_score(score)
 end
 prompt("Thanks for playing! Bye!")
