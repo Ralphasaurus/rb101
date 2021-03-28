@@ -48,10 +48,37 @@ def player_turn!(brd)
   brd[square] = PLAYER_MARKER
 end
 
-def computer_turn!(brd)
-  square = empty_squares(brd).sample
-  brd[square] = COMPUTER_MARKER
+# _______________Computer defensive logic___________________
+def determine_threat(brd)
+  threat_line = []
+  WINNING_LINES.each do |line|
+    current_line = brd.values_at(*line)
+    if current_line.any?(COMPUTER_MARKER)
+      next
+    elsif current_line.count(PLAYER_MARKER) == 2
+      threat_line = line
+    end
+  end
+  threat_line
 end
+
+def immediate_threat?(brd)
+  determine_threat(brd).empty? ? false : true
+end
+
+def defend_square(brd)
+  square = determine_threat(brd).select { |num| brd[num] == ' ' }
+  square[0]
+end
+
+def computer_turn!(brd)
+  if immediate_threat?(brd)
+    brd[defend_square(brd)] = COMPUTER_MARKER
+  else
+    brd[empty_squares(brd).sample] = COMPUTER_MARKER
+  end
+end
+#__________________________________________________________
 
 def board_full?(brd)
   empty_squares(brd).empty?
@@ -72,7 +99,7 @@ def detect_winner(brd)
   nil
 end
 
-# BONUS FEATURES::
+# ____________________Bonus Formating______________________
 def joinor(array, delimit = ', ', word = 'or')
   case array.size
   when 0
@@ -86,60 +113,62 @@ def joinor(array, delimit = ', ', word = 'or')
     array.join(delimit)
   end
 end
+#__________________________________________________________
 
+#____________________Scoring logic_________________________
 def display_score(score)
-  puts "Player points:   #{score["Player"]}"
-  puts "Computer points: #{score["Computer"]}"
+  puts "Player points:   #{score['Player']}"
+  puts "Computer points: #{score['Computer']}"
 end
 
 def increment_score(player, score)
-  player == "tie" ? score.each {|k, v| score[k] += 1 } : score[player] += 1
+  player == "tie" ? score.each { |k, _| score[k] += 1 } : score[player] += 1
 end
 
 def clear_score(score)
-  score.each {|k, _| score[k] = 0 }
+  score.each { |k, _| score[k] = 0 }
 end
+#___________________________________________________________
 
 def continue
   prompt("Press Enter to continue")
   gets
 end
 
-score = {"Player" => 0, "Computer" => 0}
+score = { "Player" => 0, "Computer" => 0 }
 
 loop do
   loop do
     board = initialize_board
-  
+
     loop do
       display_board(board)
-  
+
       display_score(score)
-  
+
       player_turn!(board)
       break if someone_won?(board) || board_full?(board)
-  
+
       computer_turn!(board)
       break if someone_won?(board) || board_full?(board)
     end
-  
+
     display_board(board)
-  
+
     if someone_won?(board)
       puts "#{detect_winner(board)} won!"
       increment_score(detect_winner(board), score)
-      continue
     else
       puts "It's a tie!"
       increment_score("tie", score)
-      continue
     end
-    break if score.any? {|k, v| v == 5}
+    continue
+    break if score.any? { |_, v| v == 5 }
   end
-  
-    prompt("Play again? (y or n)")
-    answer = gets.chomp
-    break unless answer.downcase.start_with?('y')
-    clear_score(score)
+
+  prompt("Play again? (y or n)")
+  answer = gets.chomp
+  break unless answer.downcase.start_with?('y')
+  clear_score(score)
 end
 prompt("Thanks for playing! Bye!")
