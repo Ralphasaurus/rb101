@@ -9,3 +9,25 @@
 
 # // if computer already has 2 in a row
 # // fill in 3rd square instead of randomly
+def on_the_offensive(brd)
+  attack = []
+  WINNING_LINES.each do |line|
+    current_line = brd.values_at(*line)
+    if current_line.count(COMPUTER_MARKER) == 2
+      attack = line
+    end
+  attack # returns array that is the best attack vector
+end
+
+def determine_threat(brd)
+  threat_line = []
+  WINNING_LINES.each do |line|
+    current_line = brd.values_at(*line)
+    if current_line.any?(COMPUTER_MARKER)
+      next
+    elsif current_line.count(PLAYER_MARKER) == 2
+      threat_line = line
+    end
+  end
+  threat_line
+end

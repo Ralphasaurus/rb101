@@ -48,9 +48,9 @@ def player_turn!(brd)
   brd[square] = PLAYER_MARKER
 end
 
-# _______________Computer defensive logic___________________
-def determine_threat(brd)
-  threat_line = []
+# _______________Computer logic___________________
+def defense(brd)
+  threat_line = nil
   WINNING_LINES.each do |line|
     current_line = brd.values_at(*line)
     if current_line.any?(COMPUTER_MARKER)
@@ -62,18 +62,33 @@ def determine_threat(brd)
   threat_line
 end
 
-def immediate_threat?(brd)
-  determine_threat(brd).empty? ? false : true
+# the offense and defense methods are very similar, combine into one method.
+# the comp turn method already evaluates if need defend, do that, if opening for
+# attack, attack! if neither, chose random...
+
+def offense(brd)
+  attack = nil
+  WINNING_LINES.each do |line|
+    current_line = brd.values_at(*line)
+    if current_line.count(PLAYER_MARKER) == 1
+      next
+    elsif current_line.count(COMPUTER_MARKER) == 2
+      attack = line
+    end
+  end
+  attack
 end
 
-def defend_square(brd)
-  square = determine_threat(brd).select { |num| brd[num] == ' ' }
+def take_square(brd, tactic)
+  square = tactic.select { |num| brd[num] == ' ' }
   square[0]
 end
 
 def computer_turn!(brd)
-  if immediate_threat?(brd)
-    brd[defend_square(brd)] = COMPUTER_MARKER
+  if !!offense(brd)
+    brd[take_square(brd, offense(brd))] = COMPUTER_MARKER
+  elsif !!defense(brd)
+    brd[take_square(brd, defense(brd))] = COMPUTER_MARKER
   else
     brd[empty_squares(brd).sample] = COMPUTER_MARKER
   end
@@ -128,12 +143,30 @@ end
 def clear_score(score)
   score.each { |k, _| score[k] = 0 }
 end
-#___________________________________________________________
 
 def continue
   prompt("Press Enter to continue")
   gets
 end
+
+def final_score(score)
+  display_score(score)
+  if score['Player'] < score['Computer']
+    puts "Computer won match!"
+  elsif score['Player'] > score['Computer']
+    puts "Player won match!"
+  else puts "Match is a tie!"
+  end
+end
+
+def reached_5?(brd, score)
+  if score.any? { |_, v| v == 5 }
+    final_score(score)
+    true
+  else false
+  end
+end
+#___________________________________________________________
 
 score = { "Player" => 0, "Computer" => 0 }
 
@@ -163,7 +196,7 @@ loop do
       increment_score("tie", score)
     end
     continue
-    break if score.any? { |_, v| v == 5 }
+    break if reached_5?(board, score)
   end
 
   prompt("Play again? (y or n)")
