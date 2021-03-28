@@ -49,48 +49,51 @@ def player_turn!(brd)
 end
 
 # _______________Computer logic___________________
-def defense(brd)
-  threat_line = nil
+
+def computer_move(brd, mode = 'offensive')
+  attack_defend_line = nil
+  check_1_sq = PLAYER_MARKER
+  check_2_sq = COMPUTER_MARKER
+  
+  if mode == 'defensive'
+    check_1_sq = COMPUTER_MARKER
+    check_2_sq = PLAYER_MARKER
+  end
+  
   WINNING_LINES.each do |line|
     current_line = brd.values_at(*line)
-    if current_line.any?(COMPUTER_MARKER)
+    if current_line.any?(check_1_sq)
       next
-    elsif current_line.count(PLAYER_MARKER) == 2
-      threat_line = line
+    elsif current_line.count(check_2_sq) == 2
+      attack_defend_line = line
     end
   end
-  threat_line
+  attack_defend_line
 end
 
-# the offense and defense methods are very similar, combine into one method.
-# the comp turn method already evaluates if need defend, do that, if opening for
-# attack, attack! if neither, chose random...
-
-def offense(brd)
-  attack = nil
-  WINNING_LINES.each do |line|
-    current_line = brd.values_at(*line)
-    if current_line.count(PLAYER_MARKER) == 1
-      next
-    elsif current_line.count(COMPUTER_MARKER) == 2
-      attack = line
-    end
-  end
-  attack
-end
-
-def take_square(brd, tactic)
-  square = tactic.select { |num| brd[num] == ' ' }
+def take_square(brd, line_of_sq)
+  square = line_of_sq.select { |num| brd[num] == ' ' }
   square[0]
 end
 
+def pick_5(brd)
+  if brd[5] == ' '
+    brd[5] = COMPUTER_MARKER
+  else brd[empty_squares(brd).sample] = COMPUTER_MARKER
+  end
+end
+
+# turn into case statement. precedence = offensive, defensive, pick 5, random
 def computer_turn!(brd)
-  if !!offense(brd)
-    brd[take_square(brd, offense(brd))] = COMPUTER_MARKER
-  elsif !!defense(brd)
-    brd[take_square(brd, defense(brd))] = COMPUTER_MARKER
+  offensive_array = computer_move(brd)
+  defensive_array = computer_move(brd, 'defensive')
+  
+  if !!computer_move(brd)
+    brd[take_square(brd, offensive_array)] = COMPUTER_MARKER
+  elsif !!computer_move(brd, 'defensive')
+    brd[take_square(brd, defensive_array)] = COMPUTER_MARKER
   else
-    brd[empty_squares(brd).sample] = COMPUTER_MARKER
+    pick_5(brd)
   end
 end
 #__________________________________________________________
@@ -128,7 +131,6 @@ def joinor(array, delimit = ', ', word = 'or')
     array.join(delimit)
   end
 end
-#__________________________________________________________
 
 #____________________Scoring logic_________________________
 def display_score(score)
