@@ -1,9 +1,13 @@
+require 'pry'
+require 'pry-byebug'
+
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
 EMPTY_MARKER = ' '
 WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
                 [[1, 5, 9], [3, 5, 7]]              # diagonals
+$goes_first = 'choose'
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -170,21 +174,44 @@ def reached_5?(brd, score)
 end
 #___________________________________________________________
 
+def who_goes_first(answer)
+  case answer.downcase
+  when 'p'
+    $goes_first = 'player'
+  when 'c'
+    $goes_first = 'computer'
+  else puts "Please choose either p or c"
+  end
+end
+
 score = { "Player" => 0, "Computer" => 0 }
 
 loop do
+  prompt("Who is going first? Player or Computer? (p or c)")
+
+  loop do
+    answer = gets.chomp
+    who_goes_first(answer)
+    break if $goes_first != 'choose'
+  end
+
   loop do
     board = initialize_board
 
     loop do
       display_board(board)
-
       display_score(score)
 
+      if $goes_first == 'player'
       player_turn!(board)
-      break if someone_won?(board) || board_full?(board)
-
       computer_turn!(board)
+      else computer_turn!(board)
+      display_board(board)
+      player_turn!(board)
+      end
+# the break condition is not being executed on the last go around if comp goes first
+# because it executes player turn method last and since there's no more sqs game
+# gets stuck!
       break if someone_won?(board) || board_full?(board)
     end
 

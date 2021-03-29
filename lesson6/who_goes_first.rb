@@ -21,20 +21,21 @@ loop do
 # so it's not asking who goes first after every turn cycle
 # whatever the answer this needs to continue throughout a complete match
 
-prompt("Who is going first?")
+prompt("Who is going first? Player or Computer? (p or c)")
 
-FIRST_MOVE = ['player', 'computer', 'choose']
+$goes_first = 'choose'
 
 def who_goes_first(answer)
-  case answer
-  when 'player'
-    FIRST_MOVE[0]
-  when 'computer'
-    FIRST_MOVE[1]
+  case answer.downcase
+  when 'p'
+    $goes_first = 'player'
+  when 'c'
+    $goes_first = 'computer'
+  else puts "Please choose either p or c"
   end
 end
 
 def turn_cycle(brd, first_mover)
-  first_mover == FIRST_MOVE[0] ? player_turn!(board) : computer_turn!(board)
+  $goes_first == 'player' ? player_turn!(board) : computer_turn!(board)
   break if someone_won?(board) || board_full?(board)
 end
