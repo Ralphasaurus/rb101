@@ -41,17 +41,6 @@ def empty_squares(brd)
   brd.keys.select { |num| brd[num] == EMPTY_MARKER }
 end
 
-def player_turn!(brd)
-  square = ''
-  loop do
-    prompt("Make your move: #{joinor(empty_squares(brd))}")
-    square = gets.chomp.to_i
-    break if empty_squares(brd).include?(square)
-    puts "Choice not available..."
-  end
-  brd[square] = PLAYER_MARKER
-end
-
 # _______________Computer logic___________________
 
 def computer_move(brd, mode = 'offensive')
@@ -87,7 +76,6 @@ def pick_5(brd)
   end
 end
 
-# turn into case statement. precedence = offensive, defensive, pick 5, random
 def computer_turn!(brd)
   offensive_array = computer_move(brd)
   defensive_array = computer_move(brd, 'defensive')
@@ -100,6 +88,18 @@ def computer_turn!(brd)
     pick_5(brd)
   end
 end
+
+def player_turn!(brd)
+  square = ''
+  loop do
+    prompt("Make your move: #{joinor(empty_squares(brd))}")
+    square = gets.chomp.to_i
+    break if empty_squares(brd).include?(square)
+    puts "Choice not available..."
+  end
+  brd[square] = PLAYER_MARKER
+end
+
 #__________________________________________________________
 
 def board_full?(brd)
@@ -184,6 +184,22 @@ def who_goes_first(answer)
   end
 end
 
+def display(board, score)
+  display_board(board)
+  display_score(score)
+end
+
+def place_piece!(brd, player)
+  if player == 'player'
+    player_turn!(brd)
+  else computer_turn!(brd)
+  end
+end
+
+def alternate_player(current)
+  current == 'player' ? 'computer' : 'player'
+end
+
 score = { "Player" => 0, "Computer" => 0 }
 
 loop do
@@ -197,21 +213,11 @@ loop do
 
   loop do
     board = initialize_board
-
+    current_player = $goes_first
     loop do
-      display_board(board)
-      display_score(score)
-
-      if $goes_first == 'player'
-      player_turn!(board)
-      computer_turn!(board)
-      else computer_turn!(board)
-      display_board(board)
-      player_turn!(board)
-      end
-# the break condition is not being executed on the last go around if comp goes first
-# because it executes player turn method last and since there's no more sqs game
-# gets stuck!
+      display(board, score)
+      place_piece!(board, current_player)
+      current_player = alternate_player(current_player)
       break if someone_won?(board) || board_full?(board)
     end
 
