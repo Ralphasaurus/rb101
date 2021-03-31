@@ -1,6 +1,3 @@
-require 'pry'
-require 'pry-byebug'
-
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
 EMPTY_MARKER = ' '
@@ -12,6 +9,8 @@ $goes_first = 'choose'
 def prompt(msg)
   puts "=> #{msg}"
 end
+
+#________________________Board Logic_____________________________
 
 # rubocop: disable Metrics/AbcSize
 def display_board(brd)
@@ -69,7 +68,7 @@ def take_square(brd, line_of_sq)
   square[0]
 end
 
-def pick_5(brd)
+def choose_middle_square(brd)
   if brd[5] == ' '
     brd[5] = COMPUTER_MARKER
   else brd[empty_squares(brd).sample] = COMPUTER_MARKER
@@ -85,9 +84,11 @@ def computer_turn!(brd)
   elsif !!computer_move(brd, 'defensive')
     brd[take_square(brd, defensive_array)] = COMPUTER_MARKER
   else
-    pick_5(brd)
+    choose_middle_square(brd)
   end
 end
+
+# ____________________Player Logic________________________
 
 def player_turn!(brd)
   square = ''
@@ -100,7 +101,7 @@ def player_turn!(brd)
   brd[square] = PLAYER_MARKER
 end
 
-#__________________________________________________________
+#______________________Win/End Game Logic_________________________
 
 def board_full?(brd)
   empty_squares(brd).empty?
@@ -122,6 +123,7 @@ def detect_winner(brd)
 end
 
 # ____________________Bonus Formating______________________
+
 def joinor(array, delimit = ', ', word = 'or')
   case array.size
   when 0
@@ -137,6 +139,7 @@ def joinor(array, delimit = ', ', word = 'or')
 end
 
 #____________________Scoring logic_________________________
+
 def display_score(score)
   puts "Player points:   #{score['Player']}"
   puts "Computer points: #{score['Computer']}"
@@ -155,6 +158,14 @@ def continue
   gets
 end
 
+def reached_5?(brd, score)
+  if score.any? { |_, v| v == 5 }
+    final_score(score)
+    true
+  else false
+  end
+end
+
 def final_score(score)
   display_score(score)
   if score['Player'] < score['Computer']
@@ -165,14 +176,7 @@ def final_score(score)
   end
 end
 
-def reached_5?(brd, score)
-  if score.any? { |_, v| v == 5 }
-    final_score(score)
-    true
-  else false
-  end
-end
-#___________________________________________________________
+#_________________Initial Setup and Turn Logic____________________
 
 def who_goes_first(answer)
   case answer.downcase
