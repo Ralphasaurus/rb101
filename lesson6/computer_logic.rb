@@ -13,30 +13,22 @@ def attack_or_defend(brd, mode = 'offensive')
 # second condition is checking to see if there are 2 squares taken
 # if true it reassigns the variable to the current 'line' array where trouble
 # or an opportunity is...
-def opportunity_to_win?(brd)
+def current_board_state(brd) # returns nested arrays of each winning line and their state.
+  current_state_of_lines = []
   WINNING_LINES.each do |line|
-    current_line = brd.values_at(*line)
-    if current_line.any?(PLAYER_MARKER)
-      false
-    elsif current_line.count(COMPUTER_MARKER) == 2
-      true
-    end
+    current_state_of_lines << brd.values_at(*line)
   end
 end
 
-def need_to_defend?(brd)
-  WINNING_LINES.each do |line|
-    current_line = brd.values_at(*line)
-    if current_line.any?(COMPUTER_MARKER)
-      false
-    elsif current_line.count(PLAYER_MARKER) == 2
-      true
+def line_needs_action(brd, marker)
+  current_board_state(brd).each |sub_array|
+    if sub_array.count(marker) == 2 && sub_array.count(" ") == 1
+      sub_array
     end
-  end
 end
 
-def take_square(brd, line_of_sq)
-  square = line_of_sq.select { |num| brd[num] == ' ' }
+def take_square(brd, line_array)
+  square = line_array.select { |num| brd[num] == ' ' }
   square[0]
 end
 
@@ -48,10 +40,12 @@ def choose_middle_square(brd)
 end
 
 def computer_turn!(brd)
-  if opportunity_to_win?(brd)
-    choose_open_square(brd, critical_array)
-  elsif need_to_defend?(brd)
-    brd[choose_open_square(brd, defensive_array)] = COMPUTER_MARKER
+  attack = line_needs_action(COMPUTER_MARKER)
+  defend = line_needs_action(PLAYER_MARKER)
+  if !!attack
+    take_square(brd, attack)
+  elsif !!defend
+    take_square(brd, defend)
   else
     choose_middle_square(brd)
   end

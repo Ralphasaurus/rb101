@@ -1,3 +1,6 @@
+require 'pry'
+require 'pry-byebug'
+
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
 EMPTY_MARKER = ' '
@@ -40,31 +43,32 @@ def empty_squares(brd)
   brd.keys.select { |num| brd[num] == EMPTY_MARKER }
 end
 
-# _______________Computer logic___________________
-
-def computer_move(brd, mode = 'offensive')
-  attack_defend_line = nil
-  check_1_sq = PLAYER_MARKER
-  check_2_sq = COMPUTER_MARKER
-  
-  if mode == 'defensive'
-    check_1_sq = COMPUTER_MARKER
-    check_2_sq = PLAYER_MARKER
-  end
-  
+def current_board_state(brd) # returns nested arrays of each winning line.
+  current_state_of_lines = []
   WINNING_LINES.each do |line|
-    current_line = brd.values_at(*line)
-    if current_line.any?(check_1_sq)
-      next
-    elsif current_line.count(check_2_sq) == 2
-      attack_defend_line = line
-    end
+    current_state_of_lines << brd.values_at(*line)
   end
-  attack_defend_line
+  current_state_of_lines
 end
 
-def take_square(brd, line_of_sq)
-  square = line_of_sq.select { |num| brd[num] == ' ' }
+# _______________Computer logic___________________
+
+def current_board_state(brd) # returns nested arrays of each winning line and their state.
+  current_state_of_lines = []
+  WINNING_LINES.each do |line|
+    current_state_of_lines << brd.values_at(*line)
+  end
+  current_state_of_lines
+end
+
+def line_needs_action(brd, marker)
+  current_board_state(brd).select do |sub_array|
+    sub_array.count(marker) == 2 && sub_array.count(" ") == 1
+  end
+end
+
+def take_square(brd, line_array)
+  square = line_array.select { |num| brd[num] == ' ' }
   square[0]
 end
 
@@ -76,17 +80,61 @@ def choose_middle_square(brd)
 end
 
 def computer_turn!(brd)
-  offensive_array = computer_move(brd)
-  defensive_array = computer_move(brd, 'defensive')
-  
-  if !!computer_move(brd)
-    brd[take_square(brd, offensive_array)] = COMPUTER_MARKER
-  elsif !!computer_move(brd, 'defensive')
-    brd[take_square(brd, defensive_array)] = COMPUTER_MARKER
-  else
-    choose_middle_square(brd)
+  attack = line_needs_action(brd, COMPUTER_MARKER) # I THINK THESE ARE NOT RETURNING THE NUMBERS TO ACT UPON BUT INSTEAD THE ACTUAL MARKERS...
+  defend = line_needs_action(brd, PLAYER_MARKER)
+  if !attack.empty?
+    take_square(brd, attack)
+  elsif !defend.empty?
+    take_square(brd, defend)
+  else choose_middle_square(brd)
   end
 end
+
+# def computer_move(brd, mode = 'offensive')
+#   attack_defend_line = nil
+#   check_1_sq = PLAYER_MARKER
+#   check_2_sq = COMPUTER_MARKER
+  
+#   if mode == 'defensive'
+#     check_1_sq = COMPUTER_MARKER
+#     check_2_sq = PLAYER_MARKER
+#   end
+  
+#   WINNING_LINES.each do |line|
+#     current_line = brd.values_at(*line)
+#     if current_line.any?(check_1_sq)
+#       next
+#     elsif current_line.count(check_2_sq) == 2
+#       attack_defend_line = line
+#     end
+#   end
+#   attack_defend_line
+# end
+
+# def take_square(brd, line_of_sq)
+#   square = line_of_sq.select { |num| brd[num] == ' ' }
+#   square[0]
+# end
+
+# def choose_middle_square(brd)
+#   if brd[5] == ' '
+#     brd[5] = COMPUTER_MARKER
+#   else brd[empty_squares(brd).sample] = COMPUTER_MARKER
+#   end
+# end
+
+# def computer_turn!(brd)
+#   offensive_array = computer_move(brd)
+#   defensive_array = computer_move(brd, 'defensive')
+  
+#   if !!computer_move(brd)
+#     brd[take_square(brd, offensive_array)] = COMPUTER_MARKER
+#   elsif !!computer_move(brd, 'defensive')
+#     brd[take_square(brd, defensive_array)] = COMPUTER_MARKER
+#   else
+#     choose_middle_square(brd)
+#   end
+# end
 
 # ____________________Player Logic________________________
 
