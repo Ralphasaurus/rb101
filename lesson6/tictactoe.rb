@@ -221,7 +221,7 @@ loop do
       increment_score("tie", score)
     end
     continue
-    break if reached_5?(board, score)
+    break if reached_5?(score)
   end
 
   prompt("Play again? (y or n)")
