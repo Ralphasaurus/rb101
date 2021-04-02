@@ -1,6 +1,3 @@
-require 'pry'
-require 'pry-byebug'
-
 PLAYER_MARKER = 'X'
 COMPUTER_MARKER = 'O'
 EMPTY_MARKER = ' '
@@ -13,7 +10,7 @@ def prompt(msg)
   puts "=> #{msg}"
 end
 
-#________________________Board Logic_____________________________
+# ________________________Board Logic_____________________________
 
 # rubocop: disable Metrics/AbcSize
 def display_board(brd)
@@ -44,7 +41,7 @@ end
 def line_needs_action(brd, marker)
   WINNING_LINES.select do |line|
     brd.values_at(*line).count(marker) == 2 &&
-    brd.values_at(*line).count(EMPTY_MARKER) == 1
+      brd.values_at(*line).count(EMPTY_MARKER) == 1
   end
 end
 
@@ -88,7 +85,7 @@ def player_turn!(brd)
   brd[square] = PLAYER_MARKER
 end
 
-#______________________Win/End Game Logic_________________________
+# ______________________Win/End Game Logic_________________________
 
 def board_full?(brd)
   empty_squares(brd).empty?
@@ -125,7 +122,7 @@ def joinor(array, delimit = ', ', word = 'or')
   end
 end
 
-#____________________Scoring logic_________________________
+# ____________________Scoring logic_________________________
 
 def display_score(score)
   puts "Player points:   #{score['Player']}"
@@ -145,7 +142,7 @@ def continue
   gets
 end
 
-def reached_5?(brd, score)
+def reached_5?(score)
   if score.any? { |_, v| v == 5 }
     final_score(score)
     true
@@ -163,7 +160,7 @@ def final_score(score)
   end
 end
 
-#_________________Initial Setup and Turn Logic____________________
+# _________________Initial Setup and Turn Logic____________________
 
 def who_goes_first(answer)
   case answer.downcase
