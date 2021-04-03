@@ -74,6 +74,9 @@ end
 
 # ____________________Player Logic________________________
 
+# **validate user input so floats aren't allowed**
+# **method also doing two things, getting user input and mutating the board...
+
 def player_turn!(brd)
   square = ''
   loop do
@@ -162,6 +165,12 @@ end
 
 # _________________Initial Setup and Turn Logic____________________
 
+def introduction
+  system 'clear'
+  prompt("Each match is 5 rounds. First to 5 wins!")
+  prompt("Who is going first? Player or Computer? (p or c)")
+end
+
 def who_goes_first(answer)
   case answer.downcase
   when 'p'
@@ -193,7 +202,7 @@ score = { "Player" => 0, "Computer" => 0 }
 # ________________Main Game___________________
 
 loop do
-  prompt("Who is going first? Player or Computer? (p or c)")
+  introduction
 
   loop do
     answer = gets.chomp
