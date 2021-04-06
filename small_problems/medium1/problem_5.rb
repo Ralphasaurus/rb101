@@ -13,26 +13,32 @@ require 'pry-byebug'
 # stars will go from 1, to n, back to 1
 
 
-def row(num_of_spaces, num_of_stars) # need to return the appropriate array
-  stars = '*' * num_of_stars
-  space = ' '
-  array = []
-  num_of_spaces.times { array << space }
-  array.insert(num_of_spaces, stars)
+# The below works to print the first line...
+def row(num_space, num_star)
+  space = ' ' * num_space
+  star = '*' * num_star
+  arr = [space, star, space]
+  puts arr.join
 end
 
 def diamond(n)
-  off_center = (n/2)
-  container = []
-  sub_container = []
-  1.upto(off_center) do |i|
-    container << row(off_center, i)
-  end
-  off_center.downto(1) do |i|
-    container << row(off_center, i)
-  end
-  p container
+  num_space = n / 2
+  num_star = 1
   
+  loop do
+    row(num_space, num_star)
+    break if num_star == n
+    num_space -= 1
+    num_star += 2
+  end
+  loop do
+    num_space += 1
+    num_star -= 2
+    row(num_space, num_star)
+    break if num_star == 1
+  end
 end
 
 diamond(3)
+diamond(9)
+
