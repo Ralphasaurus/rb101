@@ -17,25 +17,29 @@ require 'pry-byebug'
 # 6. If dealer bust, player wins.
 # 7. Compare cards and declare winner.
 
-DECK = { 'Hearts' => [2,3,4,5,6,7,8,9,'J','Q','K','A'],
-         'Spades' => [2,3,4,5,6,7,8,9,'J','Q','K','A'],
-         'Clubs' => [2,3,4,5,6,7,8,9,'J','Q','K','A'],
-         'Diamonds' => [2,3,4,5,6,7,8,9,'J','Q','K','A']
-        }
+DECK = [2,3,4,5,6,7,8,9,'J','Q','K','A']
 
 def prompt(msg)
   puts "=> #{msg}"
 end
 
-def card_format(front, back)
-  puts "[#{front}] [#{back}]"
+# _______________Dealing a card logic__________
+
+# - need to show the cards in [X] format
+# - if dealers cards hide the first card
+# - if players cards show all
+# - the cards need to show their value but also store the value in a stack
+
+def initial_hand(dealer_cards, player_cards)
+  2.times { dealer_cards << random_card }
+  2.times { player_cards << random_card }
 end
 
 def random_card
-  p DECK[DECK.keys.sample].sample
+  DECK.sample
 end
 
-# _______________Main loop logic_______________
+# _______________ Main loop logic _______________
 
 def welcome
   system('clear')
@@ -52,15 +56,25 @@ def ready?(first_time = true)
   else prompt('Would you like to play again?')
   end
   prompt("(press Enter to play or type 'exit' to leave the game.)")
-  gets.chomp
+  gets.chomp.downcase
 end
 
-def display()
+# ______________ Display Logic _________________
+
+def display_cards(cards, dealer = true)
+  hand = cards.map {|card| "[" + card.to_s + "]"}
+  if dealer == true
+    hand[0] = "[?]"
+  end
+  puts hand.join(" ")
+end
+
+def display(dealer_cards, player_cards)
   system('clear')
   puts "Dealer Cards:"
-  # card_format(front, back)
+  display_cards(dealer_cards)
   puts "Your Cards:"
-  # card_format(front, back)
+  display_cards(player_cards, false)
 end
 
 #_________________________________________________________
@@ -69,9 +83,14 @@ end
 loop do
   welcome
   break if ready?(true) == "exit" 
-  
-  # Gameplay loop goes here
-  display
 
+  # Gameplay loop goes here
+  dealer_cards = []
+  player_cards = []
+
+  initial_hand(dealer_cards, player_cards)
+  display(dealer_cards, player_cards)
+
+  # end Gameplay loop
   break if ready?(false) == "exit"
 end
