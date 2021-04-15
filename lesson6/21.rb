@@ -81,6 +81,8 @@ end
 
 # ______________ Scoring Logic ______________
 
+
+## still need to rework this or have a helper method to decide whether Ace is 1 or 11
 def tally_score(cards, dealer = false)
   hand = cards.map do |card|
     if card == 'A'
