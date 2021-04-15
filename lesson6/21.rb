@@ -17,18 +17,13 @@ require 'pry-byebug'
 # 6. If dealer bust, player wins.
 # 7. Compare cards and declare winner.
 
-DECK = [2,3,4,5,6,7,8,9,'J','Q','K','A']
+DECK = ['2','3','4','5','6','7','8','9','J','Q','K','A']
 
 def prompt(msg)
   puts "=> #{msg}"
 end
 
 # _______________Dealing a card logic__________
-
-# - need to show the cards in [X] format
-# - if dealers cards hide the first card
-# - if players cards show all
-# - the cards need to show their value but also store the value in a stack
 
 def initial_hand(dealer_cards, player_cards)
   2.times { dealer_cards << random_card }
@@ -62,7 +57,7 @@ end
 # ______________ Display Logic _________________
 
 def display_cards(cards, dealer = true)
-  hand = cards.map {|card| "[" + card.to_s + "]"}
+  hand = cards.map {|card| "[" + card + "]"}
   if dealer == true
     hand[0] = "[?]"
   end
@@ -75,6 +70,27 @@ def display(dealer_cards, player_cards)
   display_cards(dealer_cards)
   puts "Your Cards:"
   display_cards(player_cards, false)
+  puts ''
+  display_score(dealer_cards, player_cards)
+end
+
+def display_score(dealer, player)
+  puts "You have: #{tally_score(player)}"
+  puts "Dealer showing: #{tally_score(dealer, true)}"
+end
+
+# ______________ Scoring Logic ______________
+
+def tally_score(cards, dealer = false)
+  hand = cards.map do |card|
+    if card == 'A'
+      card = 11
+    elsif card.to_i == 0
+      card = 10
+    else card = card.to_i
+    end
+  end
+  dealer == true ? hand.sum - hand[0] : hand.sum
 end
 
 #_________________________________________________________
