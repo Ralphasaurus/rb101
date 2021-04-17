@@ -34,6 +34,10 @@ def random_card
   DECK.sample
 end
 
+def hit(cards)
+  cards << random_card
+end
+
 # _______________ Main loop logic _______________
 
 def welcome
@@ -64,7 +68,22 @@ def display_cards(cards, dealer = true)
   puts hand.join(" ")
 end
 
-def display(dealer_cards, player_cards)
+def dealer_still_in_the_game(dealer_playing)
+  if dealer_playing.empty?
+    ''
+  else
+    sleep 1
+    "DEALER STAYS"
+  end
+end
+
+def pause(dealer_playing)
+  if dealer_playing.empty?
+  else sleep 1
+  end
+end
+
+def display(dealer_cards, player_cards, dealer_playing)
   system('clear')
   puts "Dealer Cards:"
   display_cards(dealer_cards)
@@ -72,6 +91,9 @@ def display(dealer_cards, player_cards)
   display_cards(player_cards, false)
   puts ''
   display_score(dealer_cards, player_cards)
+  puts ''
+  puts "#{dealer_still_in_the_game(dealer_playing)}"
+  pause(dealer_playing)
 end
 
 def display_score(dealer, player)
@@ -81,9 +103,7 @@ end
 
 # ______________ Scoring Logic ______________
 
-
-## still need to rework this or have a helper method to decide whether Ace is 1 or 11
-def tally_score(cards, dealer = false)
+def cards_to_values(cards)
   hand = cards.map do |card|
     if card == 'A'
       card = 11
@@ -92,7 +112,47 @@ def tally_score(cards, dealer = false)
     else card = card.to_i
     end
   end
+  hand
+end
+
+def aces_1_or_11(hand)
+  if hand.sum > 21 && hand.include?(11)
+    hand.select! { |card| card != 11 }
+    hand << 1
+  else hand
+  end
+end
+
+def tally_score(cards, dealer = false)
+  hand = cards_to_values(cards)
+  hand = aces_1_or_11(hand)
   dealer == true ? hand.sum - hand[0] : hand.sum
+end
+
+# __________________ Turn Logic ___________________
+
+def hit_or_stay?
+  puts ''
+  answer = ''
+  prompt("HIT OR STAY? ('h' to hit, 's' to stay)")
+  loop do
+    answer = gets.chomp
+    break if answer.downcase == 'h' || answer.downcase == 's'
+    prompt('Please choose to either hit or stay.')
+  end
+  answer.downcase == 'h' ? true : false
+end
+
+def player_turn(cards)
+  if hit_or_stay? == true
+    hit(cards)
+  else cards
+  end
+end
+
+def dealer_turn(cards, dealer_playing)
+  hand = cards_to_values(cards)
+  hand.sum < 17 ? hit(cards) : dealer_playing << 1
 end
 
 #_________________________________________________________
@@ -102,13 +162,22 @@ loop do
   welcome
   break if ready?(true) == "exit" 
 
-  # Gameplay loop goes here
+  # Gameplay loop
   dealer_cards = []
   player_cards = []
-
+  dealer_playing = []
+  
+  system('clear')
   initial_hand(dealer_cards, player_cards)
-  display(dealer_cards, player_cards)
-
-  # end Gameplay loop
+  
+  loop do
+    display(dealer_cards, player_cards, dealer_playing)
+    player_turn(player_cards)
+    dealer_turn(dealer_cards, dealer_playing)
+    # need to:: 
+    #           -evaluate the score
+    #           -decide winner
+    #           -display winner and also reveal dealer card would be cool...
+  end
   break if ready?(false) == "exit"
 end
