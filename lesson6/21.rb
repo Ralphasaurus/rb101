@@ -34,10 +34,6 @@ def random_card
   DECK.sample
 end
 
-def hit(cards)
-  cards << random_card
-end
-
 # _______________ Main loop logic _______________
 
 def welcome
@@ -68,37 +64,21 @@ def display_cards(cards, dealer = true)
   puts hand.join(" ")
 end
 
-def dealer_still_in_the_game(dealer_playing)
-  if dealer_playing.empty?
-    ''
-  else
-    sleep 1
-    "DEALER STAYS"
-  end
-end
-
-def pause(dealer_playing)
-  if dealer_playing.empty?
-  else sleep 1
-  end
-end
-
-def display(dealer_cards, player_cards, dealer_playing)
+def display(dealer, player)
   system('clear')
   puts "Dealer Cards:"
-  display_cards(dealer_cards)
+  display_cards(dealer[:cards])
   puts "Your Cards:"
-  display_cards(player_cards, false)
+  display_cards(player[:cards], false)
   puts ''
-  display_score(dealer_cards, player_cards)
+  display_score(dealer, player)
   puts ''
-  puts "#{dealer_still_in_the_game(dealer_playing)}"
-  pause(dealer_playing)
+  puts "#{dealer[:decision]}"
 end
 
 def display_score(dealer, player)
-  puts "You have: #{tally_score(player)}"
-  puts "Dealer showing: #{tally_score(dealer, true)}"
+  puts "You have: #{player[:score]}"
+  puts "Dealer showing: #{tally_score(dealer[:cards], true)}"
 end
 
 # ______________ Scoring Logic ______________
@@ -129,6 +109,11 @@ def tally_score(cards, dealer = false)
   dealer == true ? hand.sum - hand[0] : hand.sum
 end
 
+def calculate_score(dealer, player)
+  dealer[:score] = tally_score(dealer[:cards])
+  player[:score] = tally_score(player[:cards])
+end
+
 # __________________ Turn Logic ___________________
 
 def hit_or_stay?
@@ -143,16 +128,85 @@ def hit_or_stay?
   answer.downcase == 'h' ? true : false
 end
 
-def player_turn(cards)
+def hit(cards)
+  cards << random_card
+end
+
+def player_turn(player)
   if hit_or_stay? == true
-    hit(cards)
-  else cards
+    hit(player[:cards])
+    player[:decision] = "PLAYER HITS"
+  else player[:decision] = "PLAYER STAYS"
   end
 end
 
-def dealer_turn(cards, dealer_playing)
-  hand = cards_to_values(cards)
-  hand.sum < 17 ? hit(cards) : dealer_playing << 1
+def dealer_turn(dealer)
+  cards = cards_to_values(dealer[:cards])
+  if cards.sum < 17
+    hit(dealer[:cards])
+    dealer[:decision] = "DEALER HITS"
+  else dealer[:decision] = "DEALER STAYS"
+  end
+end
+
+def who_busted(dealer_score, player_score)
+  if dealer_score > 21
+    "Dealer BUSTED!!"
+  else "Player BUSTED!!"
+  end
+end
+
+def anyone_bust?(dealer_score, player_score)
+  if (dealer_score > 21) || (player_score > 21)
+    true
+  else false
+  end
+end
+
+def both_stay?(dealer, player)
+  if !dealer.empty? && !player.empty?
+    true
+  else false
+  end
+end
+
+def anyone_have_21?(dealer, player)
+  if dealer == 21 || player == 21
+    true
+  else false
+  end
+end
+
+def evaluate_state(dealer, player, game_over)
+  if both_stay?(dealer[:decision], player[:decision])
+    game_over << decide_winner(dealer[:score], player[:score])
+  elsif anyone_bust?(dealer[:score], player[:score])
+    game_over << who_busted(dealer[:score], player[:score])
+  elsif anyone_have_21?(dealer[:score], player[:score])
+    game_over << black_jack(dealer[:score], player[:score])
+  else game_over = []
+  end
+end
+
+def black_jack(dealer_score, player_score)
+  if dealer_score > player_score
+    "DEALER HAS BLACKJACK!"
+  else "YOU HAVE BLACKJACK!"
+  end
+end
+
+def decide_winner(dealer_score, player_score)
+  if dealer_score > player_score
+    "DEALER WINS"
+  elsif player_score > dealer_score
+    "YOU WON"
+  else "IT'S A TIE"
+  end
+end
+
+def display_final_score(dealer, player, game_over)
+  display(dealer, player)
+  prompt("#{game_over[0]}")
 end
 
 #_________________________________________________________
@@ -162,22 +216,42 @@ loop do
   welcome
   break if ready?(true) == "exit" 
 
-  # Gameplay loop
-  dealer_cards = []
-  player_cards = []
-  dealer_playing = []
-  
+  dealer = { :cards => [],
+             :decision => '',
+             :score => 0
+           }
+  player = { :cards => [],
+             :decision => '',
+             :score => 0
+           }
+
+  game_over = []
+
   system('clear')
-  initial_hand(dealer_cards, player_cards)
+  initial_hand(dealer[:cards], player[:cards])
   
   loop do
-    display(dealer_cards, player_cards, dealer_playing)
-    player_turn(player_cards)
-    dealer_turn(dealer_cards, dealer_playing)
-    # need to:: 
-    #           -evaluate the score
-    #           -decide winner
-    #           -display winner and also reveal dealer card would be cool...
+    calculate_score(dealer, player)
+    display(dealer, player)
+    evaluate_state(dealer, player, game_over)
+    break if !game_over.empty?
+
+    player_turn(player)
+    calculate_score(dealer, player)
+    display(dealer, player)
+    evaluate_state(dealer, player, game_over)
+    break if !game_over.empty?
+
+    dealer_turn(dealer)
+    calculate_score(dealer, player)
+    display(dealer, player)
+    evaluate_state(dealer, player, game_over)
+    break if !game_over.empty?
+        #  -display winner and also reveal dealer card would be cool...
+    
   end
+
+  display_final_score(dealer, player, game_over)
+
   break if ready?(false) == "exit"
 end
