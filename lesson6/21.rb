@@ -52,33 +52,36 @@ def ready?(first_time = true)
   end
   prompt("(press Enter to play or type 'exit' to leave the game.)")
   gets.chomp.downcase
+  system("clear")
 end
 
 # ______________ Display Logic _________________
 
-def display_cards(cards, dealer = true)
+def display_cards(cards, show_first = false)
   hand = cards.map {|card| "[" + card + "]"}
-  if dealer == true
+  if show_first == false
     hand[0] = "[?]"
   end
   puts hand.join(" ")
 end
 
-def display(dealer, player)
+def display(dealer, player, show_first = false)
   system('clear')
   puts "Dealer Cards:"
-  display_cards(dealer[:cards])
+  display_cards(dealer[:cards], show_first)
   puts "Your Cards:"
-  display_cards(player[:cards], false)
+  display_cards(player[:cards], true)
   puts ''
-  display_score(dealer, player)
+  display_score(dealer, player, show_first)
   puts ''
   puts "#{dealer[:decision]}"
 end
 
-def display_score(dealer, player)
+def display_score(dealer, player, show_first)
+  text = 'showing'
+  show_first == false ? text : text = "had"
   puts "You have: #{player[:score]}"
-  puts "Dealer showing: #{tally_score(dealer[:cards], true)}"
+  puts "Dealer #{text}: #{tally_score(dealer[:cards], !show_first)}"
 end
 
 # ______________ Scoring Logic ______________
@@ -164,7 +167,7 @@ def anyone_bust?(dealer_score, player_score)
 end
 
 def both_stay?(dealer, player)
-  if !dealer.empty? && !player.empty?
+  if dealer == "DEALER STAYS" && player == "PLAYER STAYS"
     true
   else false
   end
@@ -204,8 +207,7 @@ def decide_winner(dealer_score, player_score)
   end
 end
 
-def display_final_score(dealer, player, game_over)
-  display(dealer, player)
+def display_winner(game_over)
   prompt("#{game_over[0]}")
 end
 
@@ -213,6 +215,7 @@ end
 
 # Main loop
 loop do
+  system("clear")
   welcome
   break if ready?(true) == "exit" 
 
@@ -229,12 +232,10 @@ loop do
 
   system('clear')
   initial_hand(dealer[:cards], player[:cards])
-  
+  calculate_score(dealer, player)
+
   loop do
-    calculate_score(dealer, player)
     display(dealer, player)
-    evaluate_state(dealer, player, game_over)
-    break if !game_over.empty?
 
     player_turn(player)
     calculate_score(dealer, player)
@@ -247,11 +248,13 @@ loop do
     display(dealer, player)
     evaluate_state(dealer, player, game_over)
     break if !game_over.empty?
-        #  -display winner and also reveal dealer card would be cool...
-    
-  end
 
-  display_final_score(dealer, player, game_over)
+# need to fix edge cases... multipe Aces are being counted as 1...
+
+
+  end
+  display(dealer, player, true)
+  display_winner(game_over)
 
   break if ready?(false) == "exit"
 end
