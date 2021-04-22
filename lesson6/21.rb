@@ -65,7 +65,12 @@ def display_cards(cards, show_first = false)
   puts hand.join(" ")
 end
 
-def display(dealer, player, show_first = false)
+def decision(dealer, player)
+  sleep(0.5)
+  puts "#{dealer[:decision]}...".center(60, " ")
+end
+
+def display(dealer, player, turn, show_first = false)
   system('clear')
   puts "Dealer Cards:"
   display_cards(dealer[:cards], show_first)
@@ -74,7 +79,7 @@ def display(dealer, player, show_first = false)
   puts ''
   display_score(dealer, player, show_first)
   puts ''
-  puts "#{dealer[:decision]}"
+  decision(dealer, player)
 end
 
 def display_score(dealer, player, show_first)
@@ -100,16 +105,16 @@ end
 
 def aces_1_or_11(hand)
   if hand.sum > 21 && hand.include?(11)
-    hand.select! { |card| card != 11 }
-    hand << 1
+    hand[hand.index(11)] = 1
+    hand
   else hand
   end
 end
 
 def tally_score(cards, dealer = false)
-  hand = cards_to_values(cards)
-  hand = aces_1_or_11(hand)
-  dealer == true ? hand.sum - hand[0] : hand.sum
+  hand_integers = cards_to_values(cards)
+  hand_altered = aces_1_or_11(hand_integers)
+  dealer == true ? hand_altered.sum - hand_altered[0] : hand_altered.sum
 end
 
 def calculate_score(dealer, player)
@@ -145,7 +150,7 @@ end
 
 def dealer_turn(dealer)
   cards = cards_to_values(dealer[:cards])
-  if cards.sum < 17
+  if tally_score(cards) < 17
     hit(dealer[:cards])
     dealer[:decision] = "DEALER HITS"
   else dealer[:decision] = "DEALER STAYS"
@@ -173,8 +178,8 @@ def both_stay?(dealer, player)
   end
 end
 
-def anyone_have_21?(dealer, player)
-  if dealer == 21 || player == 21
+def have_21?(player)
+  if player == 21
     true
   else false
   end
@@ -185,16 +190,9 @@ def evaluate_state(dealer, player, game_over)
     game_over << decide_winner(dealer[:score], player[:score])
   elsif anyone_bust?(dealer[:score], player[:score])
     game_over << who_busted(dealer[:score], player[:score])
-  elsif anyone_have_21?(dealer[:score], player[:score])
-    game_over << black_jack(dealer[:score], player[:score])
+  elsif have_21?(player[:score])
+    game_over << 'YOU HAVE 21!'
   else game_over = []
-  end
-end
-
-def black_jack(dealer_score, player_score)
-  if dealer_score > player_score
-    "DEALER HAS BLACKJACK!"
-  else "YOU HAVE BLACKJACK!"
   end
 end
 
@@ -208,7 +206,8 @@ def decide_winner(dealer_score, player_score)
 end
 
 def display_winner(game_over)
-  prompt("#{game_over[0]}")
+  msg = "***#{game_over[0]}***"
+  puts msg.center(60, ' ')
 end
 
 #_________________________________________________________
@@ -229,31 +228,32 @@ loop do
            }
 
   game_over = []
-
+  turn = true
   system('clear')
   initial_hand(dealer[:cards], player[:cards])
   calculate_score(dealer, player)
 
   loop do
-    display(dealer, player)
+    display(dealer, player, turn)
 
     player_turn(player)
+    display(dealer, player, turn)
     calculate_score(dealer, player)
-    display(dealer, player)
+    display(dealer, player, turn)
     evaluate_state(dealer, player, game_over)
     break if !game_over.empty?
 
     dealer_turn(dealer)
     calculate_score(dealer, player)
-    display(dealer, player)
+    display(dealer, player, turn)
     evaluate_state(dealer, player, game_over)
     break if !game_over.empty?
 
 # need to fix edge cases... multipe Aces are being counted as 1...
-
+# feature idea: "You won/lost by x points" at the end
 
   end
-  display(dealer, player, true)
+  display(dealer, player, turn, true)
   display_winner(game_over)
 
   break if ready?(false) == "exit"
