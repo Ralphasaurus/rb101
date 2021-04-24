@@ -80,6 +80,12 @@ def display_score(dealer, player, hide_dealer_card)
   end
 end
 
+def display_winner(game_over)
+  msg = "***#{game_over[0]}***"
+  sleep(0.5)
+  puts msg.center(60, ' ')
+end
+
 # ______________ Scoring Logic ______________
 
 def cards_to_values(cards)
@@ -168,33 +174,28 @@ def who_busted(dealer_score)
   end
 end
 
-def anyone_bust?(dealer_score, player_score)
-  if (dealer_score > 21) || (player_score > 21)
-    true
-  else false
+def anyone_bust?(dealer, player, game_over)
+  if (dealer[:score] > 21) || (player[:score] > 21)
+    game_over << who_busted(dealer[:score])
   end
 end
 
-def both_stay?(dealer_decision, player_decision)
-  if /stay/ =~ dealer_decision && /stay/ =~ player_decision
-    true
-  else false
+def both_stay?(dealer, player, game_over)
+  if /stay/ =~ dealer[:decision] && /stay/ =~ player[:decision]
+    game_over << decide_winner(dealer[:score], player[:score])
   end
 end
 
-def have_21?(player)
-  player == 21
+def have_21?(dealer, player, game_over)
+  if player[:score] == 21
+    game_over << decide_winner(dealer[:score], player[:score])
+  end
 end
 
 def evaluate_state(dealer, player, game_over)
-  if both_stay?(dealer[:decision], player[:decision])
-    game_over << decide_winner(dealer[:score], player[:score])
-  elsif anyone_bust?(dealer[:score], player[:score])
-    game_over << who_busted(dealer[:score])
-  elsif have_21?(player[:score])
-    game_over << decide_winner(dealer[:score], player[:score])
-  else game_over
-  end
+  both_stay?(dealer, player, game_over)
+  anyone_bust?(dealer, player, game_over)
+  have_21?(dealer, player, game_over)
 end
 
 def decide_winner(dealer_score, player_score)
@@ -204,12 +205,6 @@ def decide_winner(dealer_score, player_score)
     "YOU WON"
   else "IT'S A TIE"
   end
-end
-
-def display_winner(game_over)
-  msg = "***#{game_over[0]}***"
-  sleep(0.5)
-  puts msg.center(60, ' ')
 end
 
 # _________________________________________________________
