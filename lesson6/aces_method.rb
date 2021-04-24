@@ -13,19 +13,33 @@ def cards_to_values(cards)
   hand
 end
 
-# if we have aces and our hand is greater that 21
-#   change one ace to a 1
-
 def aces_1_or_11(hand)
-  if hand.sum > 21 && hand.include?(11)
-    hand[hand.index(11)] = 1
+  if hand.include?(11)
+    until hand.sum < 21 do
+      hand[hand.index(11)] = 1
+    end
     hand
   else hand
   end
 end
 
-# sum is calclulated 
-sample_hand = ["6", "5", "A"]
-values = cards_to_values(sample_hand)
-p aces_1_or_11(values)
-p aces_1_or_11(values).sum
+def tally_score(cards, dealer = false)
+  hand_integers = cards_to_values(cards)
+  hand_altered = aces_1_or_11(hand_integers)
+  dealer == true ? hand_altered.sum - hand_altered[0] : hand_altered.sum
+end
+
+def calculate_score(dealer, player)
+  p dealer[:score] = tally_score(dealer[:cards])
+  p player[:score] = tally_score(player[:cards])
+end
+
+  dealer = { :cards => ['4', '9', 'A'],
+             :decision => '',
+             :score => 0
+           }
+  player = { :cards => ['A', 'A', 'Q', '3', 'A'],
+             :decision => '',
+             :score => 0
+           } 
+calculate_score(dealer, player)
