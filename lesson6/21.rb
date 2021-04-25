@@ -1,3 +1,6 @@
+require 'pry'
+require 'pry-byebug'
+
 DECK = ['2', '3', '4', '5', '6', '7', '8', '9', 'J', 'Q', 'K', 'A']
 
 def prompt(msg)
@@ -81,7 +84,7 @@ def display_score(dealer, player, hide_dealer_card)
 end
 
 def display_winner(game_over)
-  msg = "***#{game_over[0]}***"
+  msg = "*** #{game_over[0]} ***"
   sleep(0.5)
   puts msg.center(60, ' ')
 end
@@ -167,16 +170,16 @@ def dealer_turn(dealer, player)
   display_decision(dealer, player, turn)
 end
 
-def who_busted(dealer_score)
-  if dealer_score > 21
-    "Dealer BUSTED!!"
-  else "Player BUSTED!!"
+def who_busted(player)
+  if player[:score] > 21
+    "Player BUSTED!!"
+  else "Dealer BUSTED!!"
   end
 end
 
 def anyone_bust?(dealer, player, game_over)
-  if (dealer[:score] > 21) || (player[:score] > 21)
-    game_over << who_busted(dealer[:score])
+  if (player[:score] > 21) || (dealer[:score] > 21)
+    game_over << who_busted(player)
   end
 end
 
@@ -218,18 +221,26 @@ loop do
   dealer = { cards: [],
              decision: '',
              score: 0 }
+
   player = { cards: [],
              decision: '',
              score: 0 }
 
   game_over = []
+
   system('clear')
   initial_hand(dealer[:cards], player[:cards])
   calculate_score(dealer, player)
   display(dealer, player, true)
 
+  # Match Loop
   loop do
     player_turn(player, dealer)
+    calculate_score(dealer, player)
+    evaluate_state(dealer, player, game_over)
+
+    break if !game_over.empty?
+
     dealer_turn(dealer, player)
     calculate_score(dealer, player)
     evaluate_state(dealer, player, game_over)
@@ -237,8 +248,8 @@ loop do
     display(dealer, player, true)
     break if !game_over.empty?
   end
+
   display(dealer, player, false)
   display_winner(game_over)
-
   break if ready?(false) == "exit"
 end
