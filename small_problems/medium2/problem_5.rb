@@ -12,6 +12,23 @@
 # and returns a symbol :equilateral, :isosceles, :scalene, or :invalid depending
 # on whether the triangle is equilateral, isosceles, scalene, or invalid.
 
+# first decide whether it's a valid triangle.
+# then decide what type of triangle.
+# return the type of triangle or invalid in symbol form.
+
+def is_triangle?(array)
+  array.sort
+  (array[0] + array[1] > array[2]) && (array.all? { |side| side > 0 })
+end
+
+def triangle(x,y,z)
+  arr = [x, y, z]
+  if is_triangle?(arr)
+    true
+  else :invalid
+  end
+end
+
 p triangle(3, 3, 3) == :equilateral
 p triangle(3, 3, 1.5) == :isosceles
 p triangle(3, 4, 5) == :scalene
