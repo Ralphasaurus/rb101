@@ -16,15 +16,26 @@
 # then decide what type of triangle.
 # return the type of triangle or invalid in symbol form.
 
+require 'pry-byebug'
+
 def is_triangle?(array)
-  array.sort
+  array.sort!
   (array[0] + array[1] > array[2]) && (array.all? { |side| side > 0 })
+end
+
+def type_triangle(array)
+  if array.all? { |side| side == array[0] }
+    :equilateral
+  elsif array.uniq.size < array.size
+    :isosceles
+  else :scalene
+  end
 end
 
 def triangle(x,y,z)
   arr = [x, y, z]
-  if is_triangle?(arr)
-    true
+  if is_triangle?(arr) # mutates/sorts the array
+    type_triangle(arr)
   else :invalid
   end
 end
